@@ -1,0 +1,8 @@
+{
+  "name": "managed-loop",
+  "version": "1.0.0",
+  "description": "Task-based iterative loops with structured planning, configurable git integration, and optional verification support.",
+  "author": {
+    "name": "Reese Allison"
+  }
+}

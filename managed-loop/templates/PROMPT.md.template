@@ -1,0 +1,27 @@
+# Loop Prompt
+
+@plan.md @activity.md
+
+## Instructions
+
+1. **Read activity.md** to understand current state and what was done in previous iterations
+2. **Read plan.md** to find the next task with `"passes": false`
+3. **Work on ONE task only** - complete it fully before moving on
+4. **Update activity.md** with your progress and actions taken
+5. **Update plan.md** - set `"passes": true` when task success_criteria is met
+
+## Task Description
+
+{{TASK_DESCRIPTION}}
+
+## Completion Signal
+
+When ALL tasks in plan.md have `"passes": true`, output:
+<promise>{{COMPLETION_PROMISE}}</promise>
+
+## Rules
+
+- Focus on the current task only
+- Do not skip ahead to other tasks
+- Verify your work meets the success_criteria before marking complete
+- Document your actions in activity.md for the next iteration
