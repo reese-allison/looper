@@ -11,7 +11,7 @@
       "name": "managed-loop",
       "source": "./managed-loop",
       "version": "1.0.0",
-      "description": "Run Claude in a loop with fresh context per iteration. 132 lines vs kettle's 800+.",
+      "description": "Run Claude in a loop with fresh context per iteration. Minimal and best-practices focused.",
       "author": {
         "name": "Reese Allison"
       }

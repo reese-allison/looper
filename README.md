@@ -22,11 +22,8 @@ Replace `YOUR_USERNAME` with your GitHub username (e.g., `reeseallison/looper`).
 
 ## Why Looper?
 
-| Metric | managed-loop | kettle |
-|--------|--------------|--------|
-| Lines of code | 132 | 800+ |
-| Context approach | Fresh per iteration | Bloating session |
-| Dependencies | bash, jq | bash, docker, jq |
-| Following best practices | Yes | No |
+- **Minimal**: 132 lines of bash
+- **Fresh context**: Each iteration starts clean (no bloat)
+- **Best practices**: Based on Anthropic's context engineering guide
 
 Based on [Ralph Wiggum Guide](https://github.com/JeredBlu/guides/blob/main/Ralph_Wiggum_Guide.md) and [Anthropic's Context Engineering](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents).

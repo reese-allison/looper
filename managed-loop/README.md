@@ -4,18 +4,16 @@ Run Claude in a loop with fresh context per iteration.
 
 Based on [Ralph Wiggum](https://github.com/JeredBlu/guides/blob/main/Ralph_Wiggum_Guide.md) and [Anthropic's context engineering guide](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents).
 
-## Why This Over Kettle?
+## Features
 
-| Metric | managed-loop | kettle |
-|--------|--------------|--------|
-| Lines of code | 132 | 800+ |
-| Dependencies | bash, jq | bash + docker + jq |
-| Context approach | Fresh per iteration | Single bloating session |
-| Phases | 1 | 5 |
-| Config files | 0 | 3+ |
-| Setup time | Instant | Complex |
-| Prompts | User-defined | Hardcoded PLAN_PROMPT, REVIEW_PROMPT |
-| Guard clause detection | None (trust Claude) | Regex anti-pattern |
+| Feature | Description |
+|---------|-------------|
+| Fresh context | Each iteration starts clean - no bloat |
+| Minimal | 132 lines total |
+| Error recovery | Logs errors and continues |
+| Timing | Shows per-iteration and total time |
+| Dry run | Preview prompt without API calls |
+| Graceful exit | CTRL+C shows summary |
 
 **Philosophy**: Do less. Trust Claude. Keep context fresh.
 
@@ -110,13 +108,6 @@ ln -sf $(pwd)/looper/managed-loop ~/.claude/plugins/local/managed-loop
 ```
 
 Plugin mode runs in a single context window. Use bash for tasks over 10 iterations.
-
-## Features
-
-- **Error recovery**: Logs errors and continues
-- **Timing**: Shows per-iteration and total time
-- **Dry run**: Preview prompt without API calls
-- **Graceful exit**: CTRL+C shows summary
 
 ## Why Fresh Context?
 
