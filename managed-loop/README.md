@@ -15,7 +15,7 @@ Or directly:
 ./managed-loop/scripts/loop.sh 20
 ```
 
-First run creates files in `/tmp`. Edit `plan.md` with your tasks, run again.
+First run creates files in `.looper/`. Edit `plan.md` with your tasks, run again.
 
 ## How it works
 
@@ -26,8 +26,12 @@ First run creates files in `/tmp`. Edit `plan.md` with your tasks, run again.
 
 **Fresh context**: Each iteration is a new Claude process. No bloat.
 
+## Permissions
+
+The loop merges `.claude/settings.json` (base) with `.claude/settings.local.json` (overrides) using jq, then passes `--settings` to each iteration. Falls back to base-only if jq unavailable. Configure allow/deny lists there for autonomous operation.
+
 ## Custom location
 
 ```bash
-LOOPER_DIR=~/.myloop ./managed-loop/scripts/loop.sh 20
+LOOPER_DIR=~/myproject/.looper ./managed-loop/scripts/loop.sh 20
 ```

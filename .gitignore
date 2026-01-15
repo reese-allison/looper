@@ -1,5 +1,6 @@
 # Local Claude settings
 .claude/
+.serena/
 
 # Session artifacts (users create their own)
 PROMPT.md
@@ -8,3 +9,6 @@ activity.md
 
 # OS files
 .DS_Store
+
+# Loop working directory
+.looper/

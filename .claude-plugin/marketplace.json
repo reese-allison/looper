@@ -3,8 +3,7 @@
   "version": "1.0.0",
   "description": "Claude Code loop plugins following Anthropic best practices",
   "owner": {
-    "name": "Reese Allison",
-    "email": "reese@example.com"
+    "name": "Reese Allison"
   },
   "plugins": [
     {
