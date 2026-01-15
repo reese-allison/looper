@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "looper",
+  "version": "1.0.0",
+  "description": "Claude Code loop plugins following Anthropic best practices",
+  "owner": {
+    "name": "Reese Allison",
+    "email": "reese@example.com"
+  },
+  "plugins": [
+    {
+      "name": "managed-loop",
+      "source": "./managed-loop",
+      "version": "1.0.0",
+      "description": "Run Claude in a loop with fresh context per iteration. 132 lines vs kettle's 800+.",
+      "author": {
+        "name": "Reese Allison"
+      }
+    }
+  ]
+}

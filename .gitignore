@@ -1,0 +1,10 @@
+# Local Claude settings
+.claude/
+
+# Session artifacts (users create their own)
+PROMPT.md
+plan.md
+activity.md
+
+# OS files
+.DS_Store

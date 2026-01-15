@@ -1,7 +1,7 @@
 {
   "name": "managed-loop",
   "version": "1.0.0",
-  "description": "Task-based iterative loops with structured planning, configurable git integration, and optional verification support.",
+  "description": "Run Claude in a loop with fresh context per iteration. Based on Ralph Wiggum and Anthropic best practices.",
   "author": {
     "name": "Reese Allison"
   }

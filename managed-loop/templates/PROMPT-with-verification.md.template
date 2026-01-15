@@ -6,9 +6,13 @@ Open plan.md and choose the next task where passes is false.
 
 Work on exactly ONE task.
 
+After implementing, verify with Playwright:
+1. Navigate to the local server
+2. Take a screenshot: screenshots/task-N.png
+
 After completing:
-1. Update activity.md with what you did
-2. Set that task's passes to true in plan.md
+1. Update activity.md with what you did and screenshot filename
+2. Set that task's passes to true in plan.md  
 3. Commit your changes
 
 When ALL tasks have passes true, output <promise>COMPLETE</promise>

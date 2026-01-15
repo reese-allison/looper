@@ -1,29 +1,14 @@
-# Project Plan
-
-> This file tracks all tasks for the loop. Each task should have clear completion criteria.
-> Mark `"passes": true` only when a task is fully verified complete.
-
-## Tasks
-
 ```json
 [
   {
     "id": 1,
-    "category": "setup",
-    "description": "Example: Initialize project structure",
-    "steps": [
-      "Step 1 description",
-      "Step 2 description"
-    ],
-    "success_criteria": "What defines completion",
+    "description": "First task",
+    "passes": false
+  },
+  {
+    "id": 2,
+    "description": "Second task",
     "passes": false
   }
 ]
 ```
-
-## Notes
-
-- Work on ONE task at a time
-- Update `passes` to `true` only when success_criteria is met
-- Add new tasks as they are discovered
-- Keep task descriptions specific and actionable

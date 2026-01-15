@@ -1,209 +1,133 @@
-# Managed Loop Plugin
+# Managed Loop
 
-Task-based iterative loops with structured planning, configurable git integration, and optional verification support for Claude Code.
+Run Claude in a loop with fresh context per iteration.
 
-## Overview
+Based on [Ralph Wiggum](https://github.com/JeredBlu/guides/blob/main/Ralph_Wiggum_Guide.md) and [Anthropic's context engineering guide](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents).
 
-Managed loops allow Claude to work iteratively on complex tasks. The same prompt is fed back after each attempt to exit, enabling self-correction and incremental progress. Your previous work persists in files, creating a feedback loop where Claude builds on its own output.
+## Why This Over Kettle?
 
-## Key Features
+| Metric | managed-loop | kettle |
+|--------|--------------|--------|
+| Lines of code | 132 | 800+ |
+| Dependencies | bash, jq | bash + docker + jq |
+| Context approach | Fresh per iteration | Single bloating session |
+| Phases | 1 | 5 |
+| Config files | 0 | 3+ |
+| Setup time | Instant | Complex |
+| Prompts | User-defined | Hardcoded PLAN_PROMPT, REVIEW_PROMPT |
+| Guard clause detection | None (trust Claude) | Regex anti-pattern |
 
-- **Task-based iterations** - Work on one task at a time from plan.md
-- **Structured planning** - plan.md and activity.md for tracking progress
-- **Configurable git integration** - Optional commits after tasks (disabled by default)
-- **Optional verification** - Reminders to verify work with screenshots/tests
-- **Sensible defaults** - Max 15 iterations by default (not unlimited)
-- **Clear completion criteria** - Promise-based completion signals
-
-## Installation
-
-Copy this plugin to your Claude Code plugins directory:
-
-```bash
-cp -r managed-loop ~/.claude/plugins/local/managed-loop
-```
-
-Or install from the plugin marketplace if available.
+**Philosophy**: Do less. Trust Claude. Keep context fresh.
 
 ## Quick Start
 
-### Basic Usage
-
 ```bash
-# Simple loop with default settings
-/loop "Build a REST API for todos" --completion-promise "DONE"
+# 1. Create your files
+cp templates/PROMPT.md.template PROMPT.md
+cp templates/plan.md.template plan.md
+cp templates/activity.md.template activity.md
 
-# Loop with iteration limit
-/loop "Fix the auth bug" --max-iterations 10
+# 2. Edit plan.md with your tasks
+# 3. Edit PROMPT.md if needed
 
-# Loop with git commits enabled
-/loop "Refactor the cache layer" --git --max-iterations 20
+# 4. Run
+./managed-loop/scripts/loop.sh 20
 ```
 
-### Task Mode (Recommended for Complex Projects)
+## How It Works
 
-```bash
-# 1. Initialize project structure
-/setup-loop
+The script runs `claude -p "$(cat PROMPT.md)"` in a loop. Each iteration:
+1. Gets fresh context (no bloat)
+2. Reads plan.md and activity.md via @ references
+3. Works on one task
+4. Updates files
+5. Repeats until `<promise>COMPLETE</promise>` or max iterations
 
-# 2. Edit plan.md to define your tasks
-# 3. Start the loop in task mode
-/loop --task-mode --max-iterations 30 --completion-promise "ALL TASKS COMPLETE"
-```
+## Files
 
-## Commands
+| File | Purpose |
+|------|---------|
+| `PROMPT.md` | Instructions for each iteration |
+| `plan.md` | Tasks with `passes` flags |
+| `activity.md` | Progress log |
 
-### `/loop [PROMPT] [OPTIONS]`
-
-Start a managed loop.
-
-**Options:**
-| Option | Default | Description |
-|--------|---------|-------------|
-| `--max-iterations N` | 15 | Stop after N iterations |
-| `--completion-promise TEXT` | none | Phrase that signals completion |
-| `--git` | disabled | Enable git commit reminders |
-| `--verify` | disabled | Enable verification reminders |
-| `--task-mode` | disabled | Work through plan.md tasks |
-
-### `/setup-loop [OPTIONS]`
-
-Initialize project with plan.md and activity.md.
-
-**Options:**
-| Option | Description |
-|--------|-------------|
-| `--force` | Overwrite existing files |
-
-### `/cancel-loop`
-
-Cancel an active loop.
-
-### `/help`
-
-Show detailed help for all commands.
-
-## Structured Planning
-
-### plan.md
-
-Define tasks with JSON structure:
+### plan.md format
 
 ```json
 [
   {
     "id": 1,
-    "category": "feature",
-    "description": "Implement user authentication",
-    "steps": [
-      "Create login endpoint",
-      "Add JWT token generation",
-      "Write tests"
-    ],
-    "success_criteria": "All auth tests pass",
+    "description": "Your task",
     "passes": false
   }
 ]
 ```
 
-### activity.md
-
-Tracks progress across iterations:
+### PROMPT.md format
 
 ```markdown
-## Current State
-- **Last Updated**: 2024-01-15T10:30:00Z
-- **Current Task ID**: 1
-- **Iteration**: 3
-- **Status**: In progress
+@plan.md @activity.md
 
-## Session Log
-### Iteration 3
-**Task**: Implement user authentication
-**Actions Taken**:
-- Created login endpoint
-- Added JWT generation
+Read activity.md for current state.
+Work on next task where passes is false.
+Update activity.md and set passes to true when done.
 
-**Result**: Tests failing on token validation
-**Next Steps**: Fix token validation logic
+When ALL tasks complete, output <promise>COMPLETE</promise>
 ```
 
-## Configurable Features
+## Installation
 
-### Git Integration (`--git`)
+### From GitHub (Recommended)
 
-When enabled, reminds Claude to commit after completing tasks. Useful for:
-- Checkpointing progress
-- Easy rollback if something goes wrong
-- Tracking changes per iteration
+```bash
+# 1. Add the marketplace
+/plugin marketplace add YOUR_USERNAME/looper
 
-### Verification (`--verify`)
-
-When enabled, reminds Claude to verify work. Useful for:
-- UI development (take screenshots)
-- Integration with Playwright
-- Visual confirmation of changes
-
-Both features are **disabled by default** - enable only when needed.
-
-## Completion Signals
-
-To end a loop, Claude must output the completion promise:
-
-```
-<promise>YOUR_COMPLETION_TEXT</promise>
+# 2. Install the plugin
+/plugin install managed-loop@YOUR_USERNAME-looper
 ```
 
-This only works when `--completion-promise` is set. The loop also ends when `--max-iterations` is reached.
+### Manual
 
-## Best Practices
-
-1. **Set max iterations** - Always use `--max-iterations` as a safety net
-2. **Define clear tasks** - Each task should have specific success criteria
-3. **Use task mode** - For complex projects, use plan.md for structure
-4. **Start small** - Begin with 10-15 iterations and adjust as needed
-5. **Review activity.md** - Check progress between sessions
-
-## File Structure
-
-```
-managed-loop/
-├── .claude-plugin/
-│   └── plugin.json
-├── commands/
-│   ├── loop.md
-│   ├── setup-loop.md
-│   ├── cancel-loop.md
-│   └── help.md
-├── hooks/
-│   ├── hooks.json
-│   └── stop-hook.sh
-├── scripts/
-│   ├── setup-loop.sh
-│   └── setup-project.sh
-├── templates/
-│   ├── plan.md.template
-│   ├── activity.md.template
-│   └── PROMPT.md.template
-└── README.md
+```bash
+git clone https://github.com/YOUR_USERNAME/looper.git
+ln -sf $(pwd)/looper/managed-loop ~/.claude/plugins/local/managed-loop
 ```
 
-## Troubleshooting
+## Usage
 
-### Loop won't stop
-- Check if `--max-iterations` is set
-- Verify the completion promise matches exactly
-- Run `/cancel-loop` to force stop
+### Bash (Recommended)
 
-### Task mode not working
-- Run `/setup-loop` first to create plan.md
-- Ensure plan.md has valid JSON structure
-- Check that at least one task has `"passes": false`
+```bash
+./managed-loop/scripts/loop.sh 20         # Run 20 iterations
+./managed-loop/scripts/loop.sh 20 --dry-run  # Preview without running
+```
 
-### State file corrupted
-- Delete `.claude/loop-state.local.md`
-- Start fresh with `/loop`
+### Plugin Mode (Short tasks only)
 
-## License
+```bash
+/loop "Fix the login bug" 10
+```
 
-MIT
+Plugin mode runs in a single context window. Use bash for tasks over 10 iterations.
+
+## Features
+
+- **Error recovery**: Logs errors and continues
+- **Timing**: Shows per-iteration and total time
+- **Dry run**: Preview prompt without API calls
+- **Graceful exit**: CTRL+C shows summary
+
+## Why Fresh Context?
+
+From Anthropic's guide:
+> "Treat context as a precious, finite resource with diminishing marginal returns."
+
+Single-session loops accumulate context bloat. The bash approach gives each iteration a clean slate by reading state from files.
+
+## Templates
+
+Copy from `templates/` directory:
+- `PROMPT.md.template` - Standard task loop prompt
+- `plan.md.template` - Task list format
+- `activity.md.template` - Progress log format
