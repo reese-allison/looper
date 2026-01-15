@@ -79,16 +79,16 @@ When ALL tasks complete, output <promise>COMPLETE</promise>
 
 ```bash
 # 1. Add the marketplace
-/plugin marketplace add YOUR_USERNAME/looper
+/plugin marketplace add reese-allison/looper
 
 # 2. Install the plugin
-/plugin install managed-loop@YOUR_USERNAME-looper
+/plugin install managed-loop@reese-allison-looper
 ```
 
 ### Manual
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/looper.git
+git clone https://github.com/reese-allison/looper.git
 ln -sf $(pwd)/looper/managed-loop ~/.claude/plugins/local/managed-loop
 ```
 

@@ -6,13 +6,13 @@ Claude Code plugin marketplace for development loops.
 
 ```bash
 # 1. Add the marketplace
-/plugin marketplace add YOUR_USERNAME/looper
+/plugin marketplace add reese-allison/looper
 
 # 2. Install the plugin
-/plugin install managed-loop@YOUR_USERNAME-looper
+/plugin install managed-loop@reese-allison-looper
 ```
 
-Replace `YOUR_USERNAME` with your GitHub username (e.g., `reeseallison/looper`).
+Replace `reese-allison` with your GitHub username (e.g., `reeseallison/looper`).
 
 ## Available Plugins
 
