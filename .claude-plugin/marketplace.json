@@ -1,5 +1,4 @@
 {
-  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "looper",
   "version": "1.0.0",
   "description": "Claude Code loop plugins following Anthropic best practices",
