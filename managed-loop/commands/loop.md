@@ -1,18 +1,17 @@
 ---
-description: "Start a loop (plugin mode - use ./loop.sh for long tasks)"
-argument-hint: "<prompt> [max-iterations]"
-allowed-tools: ["Bash(${CLAUDE_PLUGIN_ROOT}/scripts/setup-loop.sh:*)"]
+description: "Run a loop with fresh context per iteration"
+argument-hint: "<max-iterations> [loop-dir]"
+allowed-tools: ["Bash"]
 ---
 
 # Loop
 
+Run Claude in a loop with fresh context per iteration.
+
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/setup-loop.sh" $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/loop.sh" $ARGUMENTS
 ```
 
-Work on the task. Output `<promise>COMPLETE</promise>` when done.
+First run creates files in `/tmp/looper-<pid>/`. Edit `plan.md` with your tasks, then run `/loop` again.
 
-**Note**: For tasks over 10 iterations, use the bash script instead:
-```bash
-./managed-loop/scripts/loop.sh 30
-```
+Each iteration spawns a new Claude process - no context bloat.

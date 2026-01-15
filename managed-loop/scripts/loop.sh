@@ -1,67 +1,50 @@
 #!/bin/bash
-
-# loop.sh - Run Claude in a loop with fresh context per iteration
-# Usage: ./loop.sh <iterations> [--dry-run]
+# Run Claude in a loop with fresh context per iteration
 
 set -euo pipefail
 
-DRY_RUN=false
-MAX=""
-ERRORS=0
-COMPLETED=0
-START_TIME=$SECONDS
+LOOP_DIR="${LOOPER_DIR:-/tmp/looper-$$}"
+mkdir -p "$LOOP_DIR"
 
-cleanup() {
-  total=$((SECONDS - START_TIME))
-  echo ""
-  echo "Interrupted after $COMPLETED iterations in ${total}s. ($ERRORS errors)"
-  exit 130
-}
-trap cleanup SIGINT SIGTERM
+MAX=${1:-10}
+PROMPT_FILE="${2:-$LOOP_DIR/PROMPT.md}"
 
-for arg in "$@"; do
-  case $arg in
-    --dry-run) DRY_RUN=true ;;
-    *) [[ -z "$MAX" ]] && MAX="$arg" ;;
-  esac
-done
+if [[ ! -f "$PROMPT_FILE" ]]; then
+  cat > "$LOOP_DIR/PROMPT.md" << 'EOF'
+@plan.md @activity.md
 
-[[ -z "$MAX" ]] && echo "Usage: ./loop.sh <iterations> [--dry-run]" && exit 1
-[[ ! -f "PROMPT.md" ]] && echo "Error: PROMPT.md not found" && exit 1
+Do the next unchecked task in plan.md.
+Log progress in activity.md, check off the task.
 
-if $DRY_RUN; then
-  echo "=== DRY RUN ==="
-  echo "Would run $MAX iterations with prompt:"
-  echo "---"
-  cat PROMPT.md
-  echo "---"
+When all tasks checked: <promise>COMPLETE</promise>
+EOF
+  cat > "$LOOP_DIR/plan.md" << 'EOF'
+# Plan
+
+- [ ] First task
+- [ ] Second task
+EOF
+  cat > "$LOOP_DIR/activity.md" << 'EOF'
+# Activity Log
+EOF
+  echo "Created loop files in: $LOOP_DIR"
+  echo "Edit $LOOP_DIR/plan.md with your tasks, then run again."
   exit 0
 fi
 
+trap 'echo ""; echo "Stopped. Files in: $LOOP_DIR"' INT
+
 for ((i=1; i<=MAX; i++)); do
-  iter_start=$SECONDS
   echo "--- Iteration $i / $MAX ---"
 
-  if result=$(claude -p "$(cat PROMPT.md)" 2>&1); then
+  if result=$(claude -p "$(cat "$PROMPT_FILE")" 2>&1); then
     echo "$result"
   else
-    echo "Error in iteration $i (continuing): $result"
-    ((ERRORS++))
+    echo "Error: $result"
     continue
   fi
 
-  ((COMPLETED++))
-  elapsed=$((SECONDS - iter_start))
-  echo "[${elapsed}s]"
-
-  if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
-    total=$((SECONDS - START_TIME))
-    echo ""
-    echo "Complete after $i iterations in ${total}s. ($ERRORS errors)"
-    exit 0
-  fi
-  echo ""
+  [[ "$result" == *"<promise>COMPLETE</promise>"* ]] && echo "Done." && exit 0
 done
 
-total=$((SECONDS - START_TIME))
-echo "Reached max iterations ($MAX) in ${total}s. ($ERRORS errors)"
+echo "Reached $MAX iterations. Files in: $LOOP_DIR"
