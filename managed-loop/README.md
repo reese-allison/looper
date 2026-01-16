@@ -28,7 +28,23 @@ First run creates files in `.looper/`. Edit `plan.md` with your tasks, run again
 
 ## Permissions
 
-The loop merges `.claude/settings.json` (base) with `.claude/settings.local.json` (overrides) using jq, then passes `--settings` to each iteration. Falls back to base-only if jq unavailable. Configure allow/deny lists there for autonomous operation.
+For autonomous operation, configure permissions in `.claude/settings.local.json`:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "Read", "Write", "Edit", "Glob", "Grep",
+      "Bash(git *)", "Bash(npm test)", "Bash(mkdir *)"
+    ],
+    "deny": [
+      "Bash(rm -rf *)", "Bash(sudo *)"
+    ]
+  }
+}
+```
+
+The loop merges `.claude/settings.json` with `.claude/settings.local.json` using jq. Falls back to base-only if jq unavailable.
 
 ## Custom location
 

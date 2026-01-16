@@ -3,14 +3,16 @@
 # loop.sh - Run Claude in a loop with fresh context per iteration
 #
 # USAGE:
-#   ./loop.sh [max-iterations]
-#   /loop [max-iterations]
+#   ./loop.sh [max-iterations] [session-name]
+#   /loop [max-iterations] [session-name]
 #
 # ARGUMENTS:
 #   max-iterations  Maximum loop iterations (default: 10)
+#   session-name    Unique session name (default: timestamp)
 #
 # ENVIRONMENT:
-#   LOOPER_DIR      Directory for loop files (default: .looper)
+#   LOOPER_DIR      Base directory for loop files (default: .looper)
+#   LOOPER_SESSION  Session name (alternative to argument)
 #
 # SETTINGS:
 #   If .claude/settings.json and .claude/settings.local.json both exist,
@@ -23,11 +25,12 @@
 #   - jq (optional, for merging settings files)
 #
 # EXAMPLES:
-#   ./loop.sh 20              # Run up to 20 iterations
-#   LOOPER_DIR=~/proj/.looper ./loop.sh 5
+#   ./loop.sh 20                    # Auto-generated session name
+#   ./loop.sh 20 code-review        # Named session "code-review"
+#   LOOPER_SESSION=refactor ./loop.sh 5
 #
 # BEHAVIOR:
-#   First run creates PROMPT.md, plan.md, activity.md in LOOPER_DIR.
+#   First run creates PROMPT.md, plan.md, activity.md in session directory.
 #   Edit plan.md with tasks, run again. Each iteration:
 #   1. Spawns fresh claude -p with PROMPT.md content
 #   2. Claude reads plan.md/activity.md via @ references
@@ -46,17 +49,20 @@ if ! command -v claude &>/dev/null; then
   exit 1
 fi
 
-LOOP_DIR="${LOOPER_DIR:-.looper}"
+MAX=${1:-10}
+SESSION_NAME="${2:-${LOOPER_SESSION:-$(date +%Y%m%d-%H%M%S)}}"
+BASE_DIR="${LOOPER_DIR:-.looper}"
+LOOP_DIR="$BASE_DIR/$SESSION_NAME"
+
 mkdir -p "$LOOP_DIR"
 
 # Auto-add to .gitignore if in a git repo and using default .looper dir
-if [[ -d .git && "$LOOP_DIR" == ".looper" ]]; then
+if [[ -d .git && "$BASE_DIR" == ".looper" ]]; then
   if [[ ! -f .gitignore ]] || ! grep -qF ".looper/" .gitignore; then
     echo ".looper/" >> .gitignore
   fi
 fi
 
-MAX=${1:-10}
 PROMPT_FILE="$LOOP_DIR/PROMPT.md"
 
 if [[ ! -f "$PROMPT_FILE" ]]; then
@@ -77,12 +83,14 @@ EOF
   cat > "$LOOP_DIR/activity.md" << 'EOF'
 # Activity Log
 EOF
-  echo "Created loop files in: $LOOP_DIR/"
-  echo "Edit $LOOP_DIR/plan.md with your tasks, then run again."
+  echo "Session '$SESSION_NAME' created in: $LOOP_DIR/"
+  echo "Edit $LOOP_DIR/plan.md with your tasks, then run again:"
+  echo "  ./managed-loop/scripts/loop.sh $MAX $SESSION_NAME"
   exit 0
 fi
 
-trap 'echo ""; echo "Stopped. Files in: $LOOP_DIR/"' INT
+echo "Session: $SESSION_NAME"
+trap 'echo ""; echo "Stopped session: $SESSION_NAME (files in: $LOOP_DIR/)"' INT
 
 # Use project settings if they exist (merge base + local if both present)
 SETTINGS_ARG=""
@@ -106,8 +114,26 @@ elif [[ -f ".claude/settings.json" ]]; then
   SETTINGS_ARG="--settings .claude/settings.json"
 fi
 
+# Warn if no settings found - loop may hang on permission prompts
+if [[ -z "$SETTINGS_ARG" ]]; then
+  echo "Warning: No .claude/settings.json found." >&2
+  echo "Loop may hang waiting for permission prompts." >&2
+  echo "Create .claude/settings.local.json with 'permissions.allow' list." >&2
+  echo "See: managed-loop/README.md" >&2
+  echo ""
+fi
+
 for ((i=1; i<=MAX; i++)); do
-  echo "--- Iteration $i / $MAX ---"
+  # Show progress: task counts from plan.md
+  PLAN_FILE="$LOOP_DIR/plan.md"
+  if [[ -f "$PLAN_FILE" ]]; then
+    DONE=$(grep -c '\- \[x\]' "$PLAN_FILE" 2>/dev/null || echo 0)
+    TODO=$(grep -c '\- \[ \]' "$PLAN_FILE" 2>/dev/null || echo 0)
+    TOTAL=$((DONE + TODO))
+    echo "--- Iteration $i / $MAX ($DONE/$TOTAL tasks done) ---"
+  else
+    echo "--- Iteration $i / $MAX ---"
+  fi
 
   if [[ ! -f "$PROMPT_FILE" ]]; then
     echo "Error: $PROMPT_FILE not found. Was it deleted?" >&2
@@ -125,9 +151,10 @@ for ((i=1; i<=MAX; i++)); do
   fi
 
   if [[ "$result" == *"<promise>COMPLETE</promise>"* ]]; then
-    echo "Done after $i iteration(s)."
+    echo "Session '$SESSION_NAME' done after $i iteration(s)."
     exit 0
   fi
 done
 
-echo "Reached $MAX iterations without completion. Files in: $LOOP_DIR/"
+echo "Session '$SESSION_NAME' reached $MAX iterations without completion."
+echo "Resume with: ./managed-loop/scripts/loop.sh $MAX $SESSION_NAME"
