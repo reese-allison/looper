@@ -4,8 +4,9 @@
 #
 # USAGE:
 #   /loop "Task description"
-#   /loop                      # Prompts for task
-#   /loop session-name         # Resume existing session
+#   /loop 5 "Task description"  # With max iterations
+#   /loop                       # Prompts for task
+#   /loop session-name          # Resume existing session
 #
 # Based on Ralph Wiggum pattern and Anthropic's context engineering.
 #
@@ -19,6 +20,12 @@ fi
 
 BASE_DIR="${LOOPER_DIR:-.looper}"
 MAX="${LOOPER_MAX:-10}"
+
+# Check if first arg is a number (max iterations)
+if [[ "${1:-}" =~ ^[0-9]+$ ]]; then
+  MAX="$1"
+  shift
+fi
 
 # Load settings early (needed for planning phase)
 load_settings() {
