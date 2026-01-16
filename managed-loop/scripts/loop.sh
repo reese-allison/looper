@@ -88,7 +88,7 @@ EOF
 @$LOOP_DIR/goal.md @$LOOP_DIR/plan.md
 
 Read the goal. Analyze the codebase to understand what's needed.
-Create a concrete plan with 3-7 actionable tasks in plan.md.
+Create a concrete plan with actionable tasks in plan.md.
 
 Use this format exactly:
 # Plan
