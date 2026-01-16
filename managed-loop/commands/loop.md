@@ -1,6 +1,6 @@
 ---
 description: "Run a loop with fresh context per iteration"
-argument-hint: '"task" or session-name'
+argument-hint: '"your task description here"'
 allowed-tools: ["Bash"]
 ---
 
@@ -10,6 +10,10 @@ allowed-tools: ["Bash"]
 "${CLAUDE_PLUGIN_ROOT}/scripts/loop.sh" $ARGUMENTS
 ```
 
-**Usage:** `/loop "Review the auth code"` or `/loop` (prompts)
+**Argument format**: Pass ONLY the task as a quoted string. No key=value pairs.
 
-**Resume:** `/loop 0116-143022` (session name from output)
+✓ Correct: `/loop "Review the auth code"`
+✓ Correct: `/loop "Fix all type errors in src/"`
+✓ Correct: `/loop 0116-143022` (resume session)
+✗ Wrong: `/loop iterations=5 task="..."`
+✗ Wrong: `/loop --task "..." --max 5`
