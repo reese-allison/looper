@@ -92,8 +92,10 @@ fi
 [[ -z "$SETTINGS_ARG" ]] && echo "Warning: No .claude/settings.json - may hang on prompts." >&2
 
 for ((i=1; i<=MAX; i++)); do
-  DONE=$(grep -c '\- \[x\]' "$LOOP_DIR/plan.md" 2>/dev/null || echo 0)
-  TODO=$(grep -c '\- \[ \]' "$LOOP_DIR/plan.md" 2>/dev/null || echo 0)
+  DONE=$(grep -c '\- \[x\]' "$LOOP_DIR/plan.md" 2>/dev/null || true)
+  TODO=$(grep -c '\- \[ \]' "$LOOP_DIR/plan.md" 2>/dev/null || true)
+  DONE=${DONE:-0}
+  TODO=${TODO:-0}
   echo "--- Iteration $i/$MAX ($DONE/$((DONE+TODO)) done) ---"
 
   # shellcheck disable=SC2086

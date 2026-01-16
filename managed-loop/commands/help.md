@@ -5,13 +5,16 @@ description: "Show loop help"
 # Managed Loop
 
 ```bash
-./managed-loop/scripts/loop.sh 20              # New session (timestamp name)
-./managed-loop/scripts/loop.sh 20 my-session   # Named session
+/loop "Review the auth code"    # New session with task
+/loop                           # Prompts for task
+/loop 0116-143022               # Resume existing session
 ```
 
-First run creates files in `.looper/<session>/`.
-Edit `plan.md` with your tasks, then run again with the same session name.
+Creates files in `.looper/<session>/` (auto-timestamped).
+Claude reads `plan.md`, executes tasks, logs to `activity.md`.
 
-Custom location: `LOOPER_DIR=~/.myloop ./managed-loop/scripts/loop.sh 20`
+**Options:**
+- `LOOPER_MAX=20` - Set max iterations (default: 10)
+- `LOOPER_DIR=~/.myloop` - Custom session directory
 
 **Permissions**: Configure `.claude/settings.local.json` with `allow`/`deny` lists for autonomous operation. See README.
