@@ -6,7 +6,6 @@ description: "Show loop help"
 
 ```bash
 /loop "Review the auth code"    # New session with task
-/loop 5 "Review the auth code"  # With max 5 iterations
 /loop                           # Prompts for task
 /loop 0116-143022               # Resume existing session
 ```
