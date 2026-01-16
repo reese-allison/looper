@@ -1,5 +1,5 @@
 ---
-description: "Run a loop with fresh context per iteration"
+description: 'Run a loop with fresh context per iteration. Args: just pass the task string like "Review the code" - no key=value pairs'
 argument-hint: '"your task description here"'
 allowed-tools: ["Bash"]
 ---
