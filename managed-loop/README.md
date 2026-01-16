@@ -7,47 +7,36 @@ Based on [Ralph Wiggum](https://github.com/JeredBlu/guides/blob/main/Ralph_Wiggu
 ## Usage
 
 ```bash
-/loop 20
+/loop "Review the auth code and fix security issues"
 ```
 
-Or directly:
-```bash
-./managed-loop/scripts/loop.sh 20
-```
+Or just `/loop` to be prompted for task.
 
-First run creates files in `.looper/`. Edit `plan.md` with your tasks, run again.
+Sessions are timestamped (`0116-143022`). Resume with `/loop 0116-143022`.
 
 ## How it works
 
-1. `/loop` triggers bash script
-2. Bash spawns fresh `claude -p` each iteration
-3. Claude reads plan via `@plan.md`, does one task, updates files
-4. Repeats until all tasks checked or max iterations
-
-**Fresh context**: Each iteration is a new Claude process. No bloat.
+1. Creates session in `.looper/0116-143022/`
+2. Each iteration spawns fresh `claude -p` (no context bloat)
+3. Claude reads `@plan.md`, does task, logs to `activity.md`
+4. Exits on `<promise>COMPLETE</promise>` or max iterations
 
 ## Permissions
 
-For autonomous operation, configure permissions in `.claude/settings.local.json`:
+For autonomous operation, add to `.claude/settings.local.json`:
 
 ```json
 {
   "permissions": {
-    "allow": [
-      "Read", "Write", "Edit", "Glob", "Grep",
-      "Bash(git *)", "Bash(npm test)", "Bash(mkdir *)"
-    ],
-    "deny": [
-      "Bash(rm -rf *)", "Bash(sudo *)"
-    ]
+    "allow": ["Read", "Write", "Edit", "Glob", "Grep", "Bash(git *)"],
+    "deny": ["Bash(rm -rf *)", "Bash(sudo *)"]
   }
 }
 ```
 
-The loop merges `.claude/settings.json` with `.claude/settings.local.json` using jq. Falls back to base-only if jq unavailable.
-
-## Custom location
+## Environment
 
 ```bash
-LOOPER_DIR=~/myproject/.looper ./managed-loop/scripts/loop.sh 20
+LOOPER_DIR=.looper   # Session directory
+LOOPER_MAX=10        # Default max iterations
 ```

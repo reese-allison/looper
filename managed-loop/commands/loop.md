@@ -1,17 +1,15 @@
 ---
 description: "Run a loop with fresh context per iteration"
-argument-hint: "<max-iterations>"
+argument-hint: '"task" or session-name'
 allowed-tools: ["Bash"]
 ---
 
 # Loop
 
-Run Claude in a loop with fresh context per iteration.
-
 ```!
 "${CLAUDE_PLUGIN_ROOT}/scripts/loop.sh" $ARGUMENTS
 ```
 
-First run creates files in `.looper/`. Edit `plan.md` with your tasks, then run `/loop` again.
+**Usage:** `/loop "Review the auth code"` or `/loop` (prompts)
 
-Each iteration spawns a new Claude process - no context bloat.
+**Resume:** `/loop 0116-143022` (session name from output)
