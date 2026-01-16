@@ -7,7 +7,7 @@ allowed-tools: ["Bash"]
 # Loop
 
 ```!
-"${CLAUDE_PLUGIN_ROOT}/scripts/loop.sh" $ARGUMENTS
+"${CLAUDE_PLUGIN_ROOT}/scripts/loop.sh" "$ARGUMENTS"
 ```
 
 **Argument format**: Pass ONLY the task as a quoted string. No key=value pairs.
