@@ -37,6 +37,15 @@ load_settings() {
   [[ -z "$SETTINGS_ARG" ]] && echo "Warning: No .claude/settings.json - may hang on prompts." >&2
 }
 
+# Validate arguments - reject structured formats that Claude sometimes generates
+validate_args() {
+  local args="$*"
+  if [[ "$args" =~ ^-- ]] || [[ "$args" =~ ^-[a-z] ]] || [[ "$args" =~ [a-z]+= ]]; then
+    echo "ERROR: Invalid argument format. Correct format: /loop \"your task here\"" >&2
+    exit 1
+  fi
+}
+
 # Check if arg is an existing session to resume
 if [[ -n "${1:-}" && -d "$BASE_DIR/$1" ]]; then
   SESSION_NAME="$1"
@@ -44,6 +53,9 @@ if [[ -n "${1:-}" && -d "$BASE_DIR/$1" ]]; then
   echo "Resuming session: $SESSION_NAME"
   load_settings
 else
+  # Validate args before processing
+  [[ -n "${1:-}" ]] && validate_args "$@"
+
   # New task
   if [[ -n "${1:-}" ]]; then
     TASK="$*"
